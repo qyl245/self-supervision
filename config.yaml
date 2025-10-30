@@ -12,11 +12,14 @@ data:
   num_jobs: 20
   prefetch_factor: 6
   cache_dir: "cache/preprocessed"
+  subject_split_path: "cache/split"
   enable_filtering: true
   normalize: true       # 每通道零均值单位方差
-  scale_to_unit: true   # 可选，将分布压到 [-1,1]
+  scale_to_unit: true   # 将分布压到 [-1,1]
+  enable_audit: true                # 是否开启 audit
+  min_subjects_per_action: 2        # 过滤标准
 
-# Dataset_INFO (数据集信息)
+# =数据集信息
 dataset_info:
   KneePAD:
     original_emg_rate: 1259.259
@@ -29,7 +32,7 @@ dataset_info:
     num_imu_sensors: 6
     num_imu_axes: 6
 
-# 模型配置 (EMG 示例)
+# 模型配置
 model:
   emg:
     num_channels: 16
@@ -49,18 +52,18 @@ model:
 
 # 训练配置
 train:
-  epochs: 30
+  epochs: 20
   lr: 3e-4
   weight_decay: 1e-5
   loss_weights:
-    mae_loss: 0.3
+    mae_loss: 0.5
     contrastive_loss: 1.0
-    order_loss: 0.7
+    order_loss: 0.5
   temperature: 0.1
   num_views: 2
-  num_chunks: 3  # 顺序预测chunks
+  num_chunks: 3     # 顺序预测chunks
   mask_ratio: 0.75  # MAE mask比例
-  warmup_epochs: 3      # 加这个配合调度器用
+  warmup_epochs: 3  # 加这个配合调度器用
   device: "cuda"
   resume: false
   output_dir: "outputs"

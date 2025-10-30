@@ -16,25 +16,15 @@ class TransformSubsetDataset(torch.utils.data.Dataset):
     用于对数据集子集应用 transform,并附加域标签
     """
 
-    def __init__(self, dataset, indices, transform=None, domain_map=None):
+    def __init__(self, dataset, indices, transform=None):
         self.base_dataset = dataset
         self.indices = indices
         self.transform = transform
-        self.domain_map = domain_map  # dict: dataset_name -> int
 
     def __getitem__(self, idx):
         sample = self.base_dataset[self.indices[idx]]
         if self.transform:
             sample = self.transform(sample)
-
-        # 生成 domain_label
-        if self.domain_map is not None and 'metadata' in sample:
-            meta = sample['metadata']
-            dataset_name = meta.get('data', None)  # 需要保证 SlidingWindowDataset 有这个字段
-            if dataset_name is not None and dataset_name in self.domain_map:
-                sample['domain_label'] = torch.tensor(self.domain_map[dataset_name], dtype=torch.long)
-            else:
-                sample['domain_label'] = torch.tensor(-1, dtype=torch.long)  # 未知域
 
         return sample
 
@@ -126,7 +116,7 @@ def create_dataloaders(config, modality):
         modality=modality
     )
 
-    # ===== Step 3: 稀有动作过滤（方法1） =====
+    # ===== Step 3: 稀有动作过滤 =====
     min_subj_per_act = data_cfg.get('min_subjects_per_action', None)
     rare_actions = set()
     if min_subj_per_act is not None:
@@ -209,12 +199,8 @@ def create_dataloaders(config, modality):
     )
 
     # ===== Step 5: 构造子集数据集 =====
-
-    # 定义 domain 映射规则（这里用数据集来源）
-    domain_map = {"KneePAD": 0, "MovePort": 1}
-
-    train_ds = TransformSubsetDataset(full_dataset, train_indices, ssl_transform, domain_map=domain_map)
-    val_ds = TransformSubsetDataset(full_dataset, val_indices, ssl_transform, domain_map=domain_map)
+    train_ds = TransformSubsetDataset(full_dataset, train_indices, ssl_transform)
+    val_ds = TransformSubsetDataset(full_dataset, val_indices, ssl_transform)
 
     # ===== Step 6: DataLoader 性能优化参数 =====
     worker_count = min(data_cfg.get('num_workers', 4), os.cpu_count() or 1)

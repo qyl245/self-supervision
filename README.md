@@ -7,3 +7,6 @@
 3.更替config.yaml：epochs调整为20（20足够比较模型差异），mae_loss与order_loss改为0.5（供参考），新增subject_split_path，scale_to_unit，tenable_audit，min_subjects_per_action等参数，对应data_pipeline.py的改动
 4.上传demon3.py：为phase2的下游验证，统一验证手段更能横向对比，phase2模型整理好后再上传
 5.最近实验所得的phase1 emg和imu 与 phase2 fusion 下游验证结果见知识库（统一了切分即上传的split）
+
+2025-11-8
+添加phase2的demo1（模型加训练），demo2（数据管线），更新config

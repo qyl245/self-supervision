@@ -17,7 +17,7 @@ data:
   normalize: true       # 每通道零均值单位方差
   scale_to_unit: true   # 将分布压到 [-1,1]
   enable_audit: true                # 是否开启 audit
-  min_subjects_per_action: 2        # 过滤标准
+  min_subjects_per_action: 2        # 方法1 过滤标准
 
 # =数据集信息
 dataset_info:
@@ -49,16 +49,47 @@ model:
     nhead: 8
     num_transformer_layers: 3
     dropout: 0.1
+  fusion:
+    embed_dim: 128
+    set_encoder_heads: 4
+    set_encoder_layers: 2
+    fusion_heads: 4
+    num_classes: 16
 
 # 训练配置
 train:
-  epochs: 20
+  num_epochs: 20
   lr: 3e-4
   weight_decay: 1e-5
-  loss_weights:
+  domain_loss_weight: 0.5
+  use_dynamic_domain_weight: true
+  loss_weights_phase1:
     mae_loss: 0.5
     contrastive_loss: 1.0
     order_loss: 0.5
+    domain_loss: 1.0
+  freeze_epochs: 5
+  schedule_type: "staged"
+  loss_schedule:
+    stage1:
+      epochs: 1-20
+      w_cross: 0.8
+      w_emg: 0.6
+      w_imu: 0.6
+    stage2:
+      epochs: 21-40
+      w_cross: 1.0
+      w_emg: 0.4
+      w_imu: 0.4
+    stage3:
+      epochs: 41-50
+      w_cross: 1.2
+      w_emg: 0.3
+      w_imu: 0.3
+  linear_weights:
+    w_cross: { start: 1.0, end: 0.5 }
+    w_emg: { start: 0.1, end: 0.5 }
+    w_imu: { start: 0.1, end: 0.5 }
   temperature: 0.1
   num_views: 2
   num_chunks: 3     # 顺序预测chunks

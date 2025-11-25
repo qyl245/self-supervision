@@ -175,7 +175,7 @@ def train_phase2(cfg, train_loader, model, optimizer):
 
     scaler = torch.cuda.amp.GradScaler()
 
-    for epoch in range(cfg['num_epochs']):
+    for epoch in range(cfg['epochs']):
         w_cross, w_emg, w_imu = get_loss_weights(cfg, epoch)
         w_ce = cfg.get('w_ce', 0.1)
 
@@ -270,3 +270,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

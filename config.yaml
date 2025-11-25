@@ -58,7 +58,7 @@ model:
 
 # 训练配置
 train:
-  num_epochs: 20
+  epochs: 20
   lr: 3e-4
   weight_decay: 1e-5
   domain_loss_weight: 0.5
@@ -97,4 +97,5 @@ train:
   warmup_epochs: 3  # 加这个配合调度器用
   device: "cuda"
   resume: false
+
   output_dir: "outputs"
